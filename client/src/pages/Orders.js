@@ -1,3 +1,4 @@
+import API_BASE from '../config';
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import BackButton from '../components/BackButton';
@@ -42,7 +43,7 @@ export default function Orders() {
       <div className="orders-list">
         {orders.map(order => {
           const imgSrc = order.product?.images?.[0]
-            ? `http://localhost:5000${order.product.images[0]}`
+            ? `${API_BASE}${order.product.images[0]}`
             : `https://via.placeholder.com/80x80?text=Product`;
           return (
             <div key={order._id} className="order-card">
@@ -88,3 +89,4 @@ export default function Orders() {
     </div>
   );
 }
+

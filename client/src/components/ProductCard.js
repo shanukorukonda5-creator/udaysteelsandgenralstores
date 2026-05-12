@@ -1,3 +1,4 @@
+import API_BASE from '../config';
 import React, { useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
@@ -70,7 +71,7 @@ export default function ProductCard({ product }) {
   };
 
   const imgSrc = product.images?.[0]
-    ? `http://localhost:5000${product.images[0]}`
+    ? `${API_BASE}${product.images[0]}`
     : `https://placehold.co/300x200/1a1a2e/a855f7?text=${encodeURIComponent(product.name)}`;
 
   const discount = product.originalPrice
@@ -142,3 +143,4 @@ export default function ProductCard({ product }) {
     </div>
   );
 }
+

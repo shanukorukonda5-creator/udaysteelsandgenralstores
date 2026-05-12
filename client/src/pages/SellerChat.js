@@ -1,3 +1,4 @@
+import API_BASE from '../config';
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import BackButton from '../components/BackButton';
@@ -130,10 +131,10 @@ export default function SellerChat() {
                       {msg.text && <p>{msg.text}</p>}
                       {msg.image && (
                         <img
-                          src={`http://localhost:5000${msg.image}`}
+                          src={`${API_BASE}${msg.image}`}
                           alt="attachment"
                           className="chat-img"
-                          onClick={() => window.open(`http://localhost:5000${msg.image}`, '_blank')}
+                          onClick={() => window.open(`${API_BASE}${msg.image}`, '_blank')}
                         />
                       )}
                       <span className="chat-time">
@@ -175,3 +176,4 @@ export default function SellerChat() {
     </div>
   );
 }
+

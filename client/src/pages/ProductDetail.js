@@ -1,3 +1,4 @@
+import API_BASE from '../config';
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
@@ -105,7 +106,7 @@ export default function ProductDetail() {
   if (!product) return <div style={{ textAlign: 'center', padding: '4rem', fontSize: '1.5rem' }}>Loading...</div>;
 
   const imgSrc = (idx) => product.images?.[idx]
-    ? `http://localhost:5000${product.images[idx]}`
+    ? `${API_BASE}${product.images[idx]}`
     : `https://via.placeholder.com/500x400?text=${encodeURIComponent(product.name)}`;
 
   const discount = product.originalPrice
@@ -261,9 +262,9 @@ export default function ProductDetail() {
               {r.images?.length > 0 && (
                 <div style={{ display: 'flex', gap: 8, marginTop: 8, flexWrap: 'wrap' }}>
                   {r.images.map((img, i) => (
-                    <img key={i} src={`http://localhost:5000${img}`} alt="review"
+                    <img key={i} src={`${API_BASE}${img}`} alt="review"
                       style={{ width: 80, height: 80, objectFit: 'cover', borderRadius: 10, cursor: 'pointer', border: '1px solid var(--border)' }}
-                      onClick={() => window.open(`http://localhost:5000${img}`, '_blank')}
+                      onClick={() => window.open(`${API_BASE}${img}`, '_blank')}
                     />
                   ))}
                 </div>
@@ -275,3 +276,4 @@ export default function ProductDetail() {
     </div>
   );
 }
+

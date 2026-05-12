@@ -1,3 +1,4 @@
+import API_BASE from '../config';
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { toast } from 'react-toastify';
@@ -246,7 +247,7 @@ export default function SellerDashboard() {
             {products.length === 0 ? (
               <div className="empty-state"><div style={{ fontSize: '3rem' }}>📦</div><p>No products yet. Add your first product!</p></div>
             ) : products.map(p => {
-              const imgSrc = p.images?.[0] ? `http://localhost:5000${p.images[0]}` : `https://via.placeholder.com/60x60?text=P`;
+              const imgSrc = p.images?.[0] ? `${API_BASE}${p.images[0]}` : `https://via.placeholder.com/60x60?text=P`;
               return (
                 <div key={p._id} className="product-row">
                   <img src={imgSrc} alt={p.name} className="product-row-img" />
@@ -394,3 +395,4 @@ export default function SellerDashboard() {
     </div>
   );
 }
+

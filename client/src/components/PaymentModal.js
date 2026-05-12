@@ -1,3 +1,4 @@
+import API_BASE from '../config';
 import React, { useState } from 'react';
 import axios from 'axios';
 import { toast } from 'react-toastify';
@@ -127,7 +128,7 @@ export default function PaymentModal({ product, quantity, onClose }) {
         {/* Order summary */}
         <div className="order-summary">
           <img
-            src={product.images?.[0] ? `http://localhost:5000${product.images[0]}` : `https://placehold.co/60x60/1a1a2e/a855f7?text=P`}
+            src={product.images?.[0] ? `${API_BASE}${product.images[0]}` : `https://placehold.co/60x60/1a1a2e/a855f7?text=P`}
             alt={product.name}
             className="summary-img"
           />
@@ -193,3 +194,4 @@ export default function PaymentModal({ product, quantity, onClose }) {
     </div>
   );
 }
+

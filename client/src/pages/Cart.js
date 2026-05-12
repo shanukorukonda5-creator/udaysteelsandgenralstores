@@ -1,3 +1,4 @@
+import API_BASE from '../config';
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
@@ -45,7 +46,7 @@ export default function Cart() {
           {cart.map(item => {
             if (!item.product) return null;
             const imgSrc = item.product.images?.[0]
-              ? `http://localhost:5000${item.product.images[0]}`
+              ? `${API_BASE}${item.product.images[0]}`
               : `https://via.placeholder.com/100x100?text=Product`;
             return (
               <div key={item.product._id} className="cart-item">
@@ -90,3 +91,4 @@ export default function Cart() {
     </div>
   );
 }
+
