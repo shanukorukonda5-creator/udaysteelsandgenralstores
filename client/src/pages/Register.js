@@ -1,0 +1,245 @@
+import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import axios from 'axios';
+import { useAuth } from '../context/AuthContext';
+import { toast } from 'react-toastify';
+import './Auth.css';
+
+const PasswordStrength = ({ password }) => {
+  const checks = [
+    { label: '8+ characters', ok: password.length >= 8 },
+    { label: 'Uppercase letter', ok: /[A-Z]/.test(password) },
+    { label: 'Number', ok: /[0-9]/.test(password) },
+    { label: 'Special character', ok: /[^A-Za-z0-9]/.test(password) },
+  ];
+  const score = checks.filter(c => c.ok).length;
+  const colors = ['#ff4444', '#ff6b35', '#ffd700', '#00d4aa'];
+  const labels = ['Weak', 'Fair', 'Good', 'Strong'];
+
+  if (!password) return null;
+  return (
+    <div style={{ marginTop: 8 }}>
+      <div style={{ display: 'flex', gap: 4, marginBottom: 6 }}>
+        {[0,1,2,3].map(i => (
+          <div key={i} style={{ flex: 1, height: 4, borderRadius: 2, background: i < score ? colors[score - 1] : '#e0e0e0', transition: 'background 0.3s' }} />
+        ))}
+      </div>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <span style={{ fontSize: '0.75rem', color: colors[score - 1] || '#aaa', fontWeight: 700 }}>{score > 0 ? labels[score - 1] : ''}</span>
+        <div style={{ display: 'flex', gap: 8 }}>
+          {checks.map(c => (
+            <span key={c.label} style={{ fontSize: '0.7rem', color: c.ok ? '#00d4aa' : '#ccc' }}>
+              {c.ok ? '✓' : '○'} {c.label}
+            </span>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default function Register() {
+  const [step, setStep] = useState(1); // 1=form, 2=otp
+  const [form, setForm] = useState({
+    name: '', email: '', password: '', role: 'buyer', sellerKey: '',
+    address: { street: '', city: '', state: '', pincode: '', phone: '' }
+  });
+  const [otp, setOtp] = useState('');
+  const [pendingEmail, setPendingEmail] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [showPass, setShowPass] = useState(false);
+  const [showKey, setShowKey] = useState(false);
+  const { login } = useAuth();
+  const navigate = useNavigate();
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      const res = await axios.post('/api/auth/register', form);
+      setPendingEmail(form.email);
+      setStep(2);
+      toast.info('OTP sent! Check the server terminal for your OTP code 🔐');
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Registration failed');
+    }
+    setLoading(false);
+  };
+
+  const handleVerifyOTP = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      const res = await axios.post('/api/auth/verify-otp', { email: pendingEmail, otp });
+      login(res.data);
+      toast.success(`Welcome to Uday Steels! 🎉`);
+      navigate(res.data.user.role === 'seller' ? '/seller' : '/');
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Invalid OTP');
+    }
+    setLoading(false);
+  };
+
+  const handleResendOTP = async () => {
+    try {
+      await axios.post('/api/auth/resend-otp', { email: pendingEmail });
+      toast.info('New OTP sent! Check server terminal.');
+    } catch (err) {
+      toast.error('Failed to resend OTP');
+    }
+  };
+
+  const setAddr = (field, val) => setForm({ ...form, address: { ...form.address, [field]: val } });
+
+  // ── OTP Step ──
+  if (step === 2) {
+    return (
+      <div className="auth-page">
+        <div className="auth-card">
+          <div className="auth-header">
+            <span className="auth-logo">🔐</span>
+            <h2>Verify Your Account</h2>
+            <p>Enter the 6-digit OTP sent to <strong style={{ color: 'var(--primary-light)' }}>{pendingEmail}</strong></p>
+          </div>
+          <form onSubmit={handleVerifyOTP}>
+            <div className="form-group">
+              <label>OTP Code</label>
+              <input
+                type="text"
+                placeholder="Enter 6-digit OTP"
+                value={otp}
+                onChange={e => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                maxLength={6}
+                required
+                style={{ textAlign: 'center', fontSize: '1.5rem', letterSpacing: '0.5rem', fontWeight: 700, color: 'white', background: 'var(--bg3)' }}
+              />
+            </div>
+            <button type="submit" className="auth-btn" disabled={loading || otp.length !== 6}>
+              {loading ? 'Verifying...' : '✅ Verify & Continue'}
+            </button>
+          </form>
+          <div style={{ textAlign: 'center', marginTop: '1rem' }}>
+            <button onClick={handleResendOTP} style={{ background: 'none', border: 'none', color: 'var(--primary)', cursor: 'pointer', fontWeight: 600, fontSize: '0.88rem', fontFamily: 'Poppins' }}>
+              🔄 Resend OTP
+            </button>
+          </div>
+          <p className="auth-switch">
+            Wrong email? <button onClick={() => setStep(1)} style={{ background: 'none', border: 'none', color: 'var(--primary)', cursor: 'pointer', fontWeight: 700, fontFamily: 'Poppins' }}>Go back</button>
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  // ── Registration Form ──
+  return (
+    <div className="auth-page">
+      <div className="auth-card wide">
+        <div className="auth-header">
+          <span className="auth-logo">🏪</span>
+          <h2>Create Account</h2>
+          <p>Join Uday Steels & General Stores</p>
+        </div>
+        <form onSubmit={handleSubmit}>
+          <div className="form-row">
+            <div className="form-group">
+              <label>Full Name</label>
+              <input placeholder="Your full name" value={form.name}
+                onChange={e => setForm({ ...form, name: e.target.value })} required />
+            </div>
+            <div className="form-group">
+              <label>Email</label>
+              <input type="email" placeholder="your@email.com" value={form.email}
+                onChange={e => setForm({ ...form, email: e.target.value })} required />
+            </div>
+          </div>
+
+          <div className="form-row">
+            <div className="form-group">
+              <label>Password</label>
+              <div style={{ position: 'relative' }}>
+                <input type={showPass ? 'text' : 'password'} placeholder="Min 8 chars, 1 uppercase, 1 number"
+                  value={form.password} onChange={e => setForm({ ...form, password: e.target.value })} required
+                  style={{ paddingRight: 44 }} />
+                <button type="button" onClick={() => setShowPass(!showPass)}
+                  style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', fontSize: '1.1rem' }}>
+                  {showPass ? '🙈' : '👁️'}
+                </button>
+              </div>
+              <PasswordStrength password={form.password} />
+            </div>
+            <div className="form-group">
+              <label>I am a</label>
+              <select value={form.role} onChange={e => setForm({ ...form, role: e.target.value, sellerKey: '' })}>
+                <option value="buyer">🛒 Buyer</option>
+                <option value="seller">🏪 Seller</option>
+              </select>
+            </div>
+          </div>
+
+          {/* Seller Secret Key */}
+          {form.role === 'seller' && (
+            <div className="seller-key-box">
+              <div className="seller-key-header">
+                <span>🔑</span>
+                <div>
+                  <strong>Seller Verification Required</strong>
+                  <p>Enter the secret key provided by the store admin to register as a seller.</p>
+                </div>
+              </div>
+              <div className="form-group" style={{ marginBottom: 0 }}>
+                <label>Seller Secret Key</label>
+                <div style={{ position: 'relative' }}>
+                  <input type={showKey ? 'text' : 'password'} placeholder="Enter seller secret key"
+                    value={form.sellerKey} onChange={e => setForm({ ...form, sellerKey: e.target.value })} required
+                    style={{ paddingRight: 44 }} />
+                  <button type="button" onClick={() => setShowKey(!showKey)}
+                    style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', fontSize: '1.1rem' }}>
+                    {showKey ? '🙈' : '👁️'}
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Buyer Address */}
+          {form.role === 'buyer' && (
+            <>
+              <p className="section-label">📍 Delivery Address</p>
+              <div className="form-group">
+                <label>Street Address</label>
+                <input placeholder="House no, Street, Area" value={form.address.street}
+                  onChange={e => setAddr('street', e.target.value)} />
+              </div>
+              <div className="form-row">
+                <div className="form-group">
+                  <label>City</label>
+                  <input placeholder="City" value={form.address.city} onChange={e => setAddr('city', e.target.value)} />
+                </div>
+                <div className="form-group">
+                  <label>State</label>
+                  <input placeholder="State" value={form.address.state} onChange={e => setAddr('state', e.target.value)} />
+                </div>
+              </div>
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Pincode</label>
+                  <input placeholder="Pincode" value={form.address.pincode} onChange={e => setAddr('pincode', e.target.value)} />
+                </div>
+                <div className="form-group">
+                  <label>Phone</label>
+                  <input placeholder="+91 XXXXX XXXXX" value={form.address.phone} onChange={e => setAddr('phone', e.target.value)} />
+                </div>
+              </div>
+            </>
+          )}
+
+          <button type="submit" className="auth-btn" disabled={loading}>
+            {loading ? 'Creating Account...' : '🚀 Create Account & Get OTP'}
+          </button>
+        </form>
+        <p className="auth-switch">Already have an account? <Link to="/login">Login here</Link></p>
+      </div>
+    </div>
+  );
+}
