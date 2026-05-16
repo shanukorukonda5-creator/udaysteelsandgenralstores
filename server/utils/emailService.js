@@ -1,21 +1,18 @@
 const nodemailer = require('nodemailer');
 
 const transporter = nodemailer.createTransport({
-  host: 'smtp.gmail.com',
+  host: 'smtp-relay.brevo.com',
   port: 587,
   secure: false,
   auth: {
-    user: process.env.GMAIL_USER,
-    pass: process.env.GMAIL_PASS
-  },
-  tls: {
-    rejectUnauthorized: false
+    user: process.env.BREVO_USER,
+    pass: process.env.BREVO_PASS
   }
 });
 
 const sendOTPEmail = async (toEmail, otp, name) => {
   const mailOptions = {
-    from: `"Uday Steels & General Stores" <${process.env.GMAIL_USER}>`,
+    from: `"Uday Steels & General Stores" <${process.env.BREVO_USER}>`,
     to: toEmail,
     subject: '🔐 Your OTP for Uday Steels & General Stores',
     html: `
@@ -74,7 +71,7 @@ const sendOrderEmailToSeller = async (sellerEmail, { order, product, buyer, paym
     : `<span style="background:#10b981;color:white;padding:4px 12px;border-radius:20px;font-size:0.8rem;font-weight:700;">✅ Paid Online</span>`;
 
   const mailOptions = {
-    from: `"Uday Steels & General Stores" <${process.env.GMAIL_USER}>`,
+    from: `"Uday Steels & General Stores" <${process.env.BREVO_USER}>`,
     to: sellerEmail,
     subject: `🛒 New Order Received — ${product.name}`,
     html: `
@@ -163,3 +160,4 @@ const sendOrderEmailToSeller = async (sellerEmail, { order, product, buyer, paym
 };
 
 module.exports = { sendOTPEmail, sendOrderEmailToSeller };
+
