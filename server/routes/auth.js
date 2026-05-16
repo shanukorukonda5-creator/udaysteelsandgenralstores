@@ -3,16 +3,9 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const auth = require('../middleware/auth');
-const { sendOTPEmail } = require('../utils/emailService');
 
 const MAX_LOGIN_ATTEMPTS = 5;
-const LOCK_TIME = 15 * 60 * 1000; // 15 minutes
-
-// Generate 6-digit OTP
-const generateOTP = () => Math.floor(100000 + Math.random() * 900000).toString();
-
-// Simple in-memory OTP store (for demo — in production use email/SMS service)
-const otpStore = {};
+const LOCK_TIME = 15 * 60 * 1000;
 
 // ─── REGISTER ────────────────────────────────────────────────────────────────
 router.post('/register', async (req, res) => {
@@ -39,86 +32,17 @@ router.post('/register', async (req, res) => {
     const exists = await User.findOne({ email });
     if (exists) return res.status(400).json({ message: 'Email already registered' });
 
-    // Generate OTP for email verification
-    const otp = generateOTP();
-    const otpExpiry = new Date(Date.now() + 10 * 60 * 1000); // 10 min
-
     const hashed = await bcrypt.hash(password, 12);
     const user = await User.create({
       name, email, password: hashed, role, address,
-      otp, otpExpiry, isVerified: false
+      isVerified: true // auto-verified, no OTP needed
     });
-
-    // Store OTP and send via email
-    otpStore[email] = { otp, expiry: otpExpiry };
-
-    try {
-      await sendOTPEmail(email, otp, name);
-      console.log(`✅ OTP email sent to ${email}`);
-    } catch (emailErr) {
-      console.error('Email send failed:', emailErr.message);
-      console.log(`\n🔐 FALLBACK OTP for ${email}: ${otp}\n`);
-    }
-
-    res.json({
-      message: `OTP sent to ${email}. Please check your inbox.`,
-      email,
-      requiresOTP: true
-    });
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-});
-
-// ─── VERIFY OTP ──────────────────────────────────────────────────────────────
-router.post('/verify-otp', async (req, res) => {
-  try {
-    const { email, otp } = req.body;
-    const user = await User.findOne({ email });
-    if (!user) return res.status(404).json({ message: 'User not found' });
-    if (user.isVerified) return res.status(400).json({ message: 'Already verified' });
-
-    const stored = otpStore[email];
-    if (!stored || stored.otp !== otp) return res.status(400).json({ message: 'Invalid OTP' });
-    if (new Date() > stored.expiry) return res.status(400).json({ message: 'OTP expired. Please register again.' });
-
-    user.isVerified = true;
-    user.otp = undefined;
-    user.otpExpiry = undefined;
-    await user.save();
-    delete otpStore[email];
 
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET || 'secret123', { expiresIn: '7d' });
     res.json({
       token,
       user: { _id: user._id, name: user.name, email: user.email, role: user.role, address: user.address }
     });
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-});
-
-// ─── RESEND OTP ───────────────────────────────────────────────────────────────
-router.post('/resend-otp', async (req, res) => {
-  try {
-    const { email } = req.body;
-    const user = await User.findOne({ email });
-    if (!user) return res.status(404).json({ message: 'User not found' });
-    if (user.isVerified) return res.status(400).json({ message: 'Already verified' });
-
-    const otp = generateOTP();
-    const otpExpiry = new Date(Date.now() + 10 * 60 * 1000);
-    otpStore[email] = { otp, expiry: otpExpiry };
-
-    try {
-      await sendOTPEmail(email, otp, user.name);
-      console.log(`✅ Resent OTP email to ${email}`);
-    } catch (emailErr) {
-      console.error('Email send failed:', emailErr.message);
-      console.log(`\n🔐 FALLBACK OTP for ${email}: ${otp}\n`);
-    }
-
-    res.json({ message: `New OTP sent to ${email}. Check your inbox.` });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
@@ -156,10 +80,6 @@ router.post('/login', async (req, res) => {
       return res.status(400).json({ message: `Invalid credentials. ${remaining} attempt(s) remaining.` });
     }
 
-    if (!user.isVerified) {
-      return res.status(403).json({ message: 'Please verify your email first.', requiresOTP: true, email });
-    }
-
     // Reset login attempts on success
     user.loginAttempts = 0;
     user.lockUntil = undefined;
@@ -189,8 +109,6 @@ router.put('/profile', auth, async (req, res) => {
 router.get('/me', auth, async (req, res) => {
   res.json(req.user);
 });
-
-module.exports = router;
 
 // ─── SELLER: BLOCK / UNBLOCK BUYER ───────────────────────────────────────────
 router.put('/block/:userId', auth, async (req, res) => {
@@ -229,3 +147,5 @@ router.get('/buyers', auth, async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 });
+
+module.exports = router;

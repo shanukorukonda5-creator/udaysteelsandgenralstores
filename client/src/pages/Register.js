@@ -7,45 +7,33 @@ import './Auth.css';
 
 const PasswordStrength = ({ password }) => {
   const checks = [
-    { label: '8+ characters', ok: password.length >= 8 },
-    { label: 'Uppercase letter', ok: /[A-Z]/.test(password) },
+    { label: '8+ chars', ok: password.length >= 8 },
+    { label: 'Uppercase', ok: /[A-Z]/.test(password) },
     { label: 'Number', ok: /[0-9]/.test(password) },
-    { label: 'Special character', ok: /[^A-Za-z0-9]/.test(password) },
   ];
   const score = checks.filter(c => c.ok).length;
-  const colors = ['#ff4444', '#ff6b35', '#ffd700', '#00d4aa'];
-  const labels = ['Weak', 'Fair', 'Good', 'Strong'];
-
+  const colors = ['#ef4444', '#f59e0b', '#10b981'];
+  const labels = ['Weak', 'Fair', 'Strong'];
   if (!password) return null;
   return (
     <div style={{ marginTop: 8 }}>
       <div style={{ display: 'flex', gap: 4, marginBottom: 6 }}>
-        {[0,1,2,3].map(i => (
-          <div key={i} style={{ flex: 1, height: 4, borderRadius: 2, background: i < score ? colors[score - 1] : '#e0e0e0', transition: 'background 0.3s' }} />
+        {[0,1,2].map(i => (
+          <div key={i} style={{ flex: 1, height: 4, borderRadius: 2, background: i < score ? colors[score-1] : '#333', transition: 'background 0.3s' }} />
         ))}
       </div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <span style={{ fontSize: '0.75rem', color: colors[score - 1] || '#aaa', fontWeight: 700 }}>{score > 0 ? labels[score - 1] : ''}</span>
-        <div style={{ display: 'flex', gap: 8 }}>
-          {checks.map(c => (
-            <span key={c.label} style={{ fontSize: '0.7rem', color: c.ok ? '#00d4aa' : '#ccc' }}>
-              {c.ok ? '✓' : '○'} {c.label}
-            </span>
-          ))}
-        </div>
-      </div>
+      <span style={{ fontSize: '0.75rem', color: colors[score-1] || '#aaa', fontWeight: 700 }}>
+        {score > 0 ? labels[score-1] : ''}
+      </span>
     </div>
   );
 };
 
 export default function Register() {
-  const [step, setStep] = useState(1); // 1=form, 2=otp
   const [form, setForm] = useState({
     name: '', email: '', password: '', role: 'buyer', sellerKey: '',
     address: { street: '', city: '', state: '', pincode: '', phone: '' }
   });
-  const [otp, setOtp] = useState('');
-  const [pendingEmail, setPendingEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [showPass, setShowPass] = useState(false);
   const [showKey, setShowKey] = useState(false);
@@ -57,81 +45,17 @@ export default function Register() {
     setLoading(true);
     try {
       const res = await axios.post('/api/auth/register', form);
-      setPendingEmail(form.email);
-      setStep(2);
-      toast.info('OTP sent! Check the server terminal for your OTP code 🔐');
+      login(res.data);
+      toast.success(`Welcome to Uday Steels! 🎉`);
+      navigate(res.data.user.role === 'seller' ? '/seller' : '/');
     } catch (err) {
       toast.error(err.response?.data?.message || 'Registration failed');
     }
     setLoading(false);
   };
 
-  const handleVerifyOTP = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    try {
-      const res = await axios.post('/api/auth/verify-otp', { email: pendingEmail, otp });
-      login(res.data);
-      toast.success(`Welcome to Uday Steels! 🎉`);
-      navigate(res.data.user.role === 'seller' ? '/seller' : '/');
-    } catch (err) {
-      toast.error(err.response?.data?.message || 'Invalid OTP');
-    }
-    setLoading(false);
-  };
-
-  const handleResendOTP = async () => {
-    try {
-      await axios.post('/api/auth/resend-otp', { email: pendingEmail });
-      toast.info('New OTP sent! Check server terminal.');
-    } catch (err) {
-      toast.error('Failed to resend OTP');
-    }
-  };
-
   const setAddr = (field, val) => setForm({ ...form, address: { ...form.address, [field]: val } });
 
-  // ── OTP Step ──
-  if (step === 2) {
-    return (
-      <div className="auth-page">
-        <div className="auth-card">
-          <div className="auth-header">
-            <span className="auth-logo">🔐</span>
-            <h2>Verify Your Account</h2>
-            <p>Enter the 6-digit OTP sent to <strong style={{ color: 'var(--primary-light)' }}>{pendingEmail}</strong></p>
-          </div>
-          <form onSubmit={handleVerifyOTP}>
-            <div className="form-group">
-              <label>OTP Code</label>
-              <input
-                type="text"
-                placeholder="Enter 6-digit OTP"
-                value={otp}
-                onChange={e => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
-                maxLength={6}
-                required
-                style={{ textAlign: 'center', fontSize: '1.5rem', letterSpacing: '0.5rem', fontWeight: 700, color: 'white', background: 'var(--bg3)' }}
-              />
-            </div>
-            <button type="submit" className="auth-btn" disabled={loading || otp.length !== 6}>
-              {loading ? 'Verifying...' : '✅ Verify & Continue'}
-            </button>
-          </form>
-          <div style={{ textAlign: 'center', marginTop: '1rem' }}>
-            <button onClick={handleResendOTP} style={{ background: 'none', border: 'none', color: 'var(--primary)', cursor: 'pointer', fontWeight: 600, fontSize: '0.88rem', fontFamily: 'Poppins' }}>
-              🔄 Resend OTP
-            </button>
-          </div>
-          <p className="auth-switch">
-            Wrong email? <button onClick={() => setStep(1)} style={{ background: 'none', border: 'none', color: 'var(--primary)', cursor: 'pointer', fontWeight: 700, fontFamily: 'Poppins' }}>Go back</button>
-          </p>
-        </div>
-      </div>
-    );
-  }
-
-  // ── Registration Form ──
   return (
     <div className="auth-page">
       <div className="auth-card wide">
@@ -153,7 +77,6 @@ export default function Register() {
                 onChange={e => setForm({ ...form, email: e.target.value })} required />
             </div>
           </div>
-
           <div className="form-row">
             <div className="form-group">
               <label>Password</label>
@@ -177,14 +100,13 @@ export default function Register() {
             </div>
           </div>
 
-          {/* Seller Secret Key */}
           {form.role === 'seller' && (
             <div className="seller-key-box">
               <div className="seller-key-header">
                 <span>🔑</span>
                 <div>
                   <strong>Seller Verification Required</strong>
-                  <p>Enter the secret key provided by the store admin to register as a seller.</p>
+                  <p>Enter the secret key provided by the store admin.</p>
                 </div>
               </div>
               <div className="form-group" style={{ marginBottom: 0 }}>
@@ -202,7 +124,6 @@ export default function Register() {
             </div>
           )}
 
-          {/* Buyer Address */}
           {form.role === 'buyer' && (
             <>
               <p className="section-label">📍 Delivery Address</p>
@@ -235,7 +156,7 @@ export default function Register() {
           )}
 
           <button type="submit" className="auth-btn" disabled={loading}>
-            {loading ? 'Creating Account...' : '🚀 Create Account & Get OTP'}
+            {loading ? 'Creating Account...' : '🚀 Create Account'}
           </button>
         </form>
         <p className="auth-switch">Already have an account? <Link to="/login">Login here</Link></p>
