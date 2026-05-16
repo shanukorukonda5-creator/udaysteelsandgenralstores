@@ -6,18 +6,10 @@ require('dotenv').config();
 
 const app = express();
 
-// CORS — allow frontend origin
-const allowedOrigins = [
-  'http://localhost:3000',
-  process.env.FRONTEND_URL
-].filter(Boolean);
-
+// CORS — allow all origins in production
 app.use(cors({
-  origin: (origin, callback) => {
-    if (!origin || allowedOrigins.includes(origin)) callback(null, true);
-    else callback(new Error('Not allowed by CORS'));
-  },
-  credentials: true
+  origin: '*',
+  credentials: false
 }));
 
 app.use(express.json({ limit: '10mb' }));
