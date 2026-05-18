@@ -29,7 +29,7 @@ router.post('/', auth, async (req, res) => {
       quantity,
       totalPrice,
       paymentMethod,
-      paymentStatus: paymentMethod === 'cod' ? 'pending' : 'pending',
+      paymentStatus: paymentMethod === 'cod' ? 'pending' : 'paid',
       buyerDetails: {
         name: buyer.name,
         email: buyer.email,
@@ -71,7 +71,8 @@ router.post('/', auth, async (req, res) => {
       return res.json({ order, paymentData, requiresPayment: true });
     }
 
-    res.json({ order, requiresPayment: false });  } catch (err) {
+    res.json({ order, requiresPayment: false });
+  } catch (err) {
     res.status(500).json({ message: err.message });
   }
 });

@@ -1,18 +1,9 @@
 const router = require('express').Router();
-const multer = require('multer');
-const path = require('path');
-const fs = require('fs');
 const Chat = require('../models/Chat');
 const auth = require('../middleware/auth');
+const { uploadChat } = require('../utils/cloudinary');
 
-const uploadDir = path.join(__dirname, '../uploads/chat');
-if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
-
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, uploadDir),
-  filename: (req, file, cb) => cb(null, `chat_${Date.now()}_${file.originalname.replace(/\s+/g, '_')}`)
-});
-const upload = multer({ storage, limits: { fileSize: 5 * 1024 * 1024 } });
+const upload = uploadChat;
 
 // Buyer: get or create their chat
 router.get('/mine', auth, async (req, res) => {
@@ -42,7 +33,7 @@ router.post('/send', auth, upload.single('image'), async (req, res) => {
       senderName: req.user.name,
       senderRole: req.user.role,
       text: req.body.text || '',
-      image: req.file ? `/uploads/chat/${req.file.filename}` : null
+      image: req.file ? req.file.path : null
     };
     chat.messages.push(msg);
     chat.lastMessage = msg.text || '📷 Image';
@@ -91,7 +82,7 @@ router.post('/reply/:buyerId', auth, upload.single('image'), async (req, res) =>
       senderName: req.user.name,
       senderRole: 'seller',
       text: req.body.text || '',
-      image: req.file ? `/uploads/chat/${req.file.filename}` : null
+      image: req.file ? req.file.path : null
     };
     chat.messages.push(msg);
     chat.lastMessage = msg.text || '📷 Image';
