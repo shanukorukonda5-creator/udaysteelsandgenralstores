@@ -46,7 +46,7 @@ export default function Cart() {
           {cart.map(item => {
             if (!item.product) return null;
             const imgSrc = item.product.images?.[0]
-              ? `${API_BASE}${item.product.images[0]}`
+              ? (item.product.images[0].startsWith('http') ? item.product.images[0] : `${API_BASE}${item.product.images[0]}`)
               : `https://via.placeholder.com/100x100?text=Product`;
             return (
               <div key={item.product._id} className="cart-item">

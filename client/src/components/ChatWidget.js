@@ -174,9 +174,9 @@ export default function ChatWidget() {
                 <div className="chat-bubble">
                   {msg.text && <p>{msg.text}</p>}
                   {msg.image && (
-                    <img src={`${API_BASE}${msg.image}`} alt="attachment"
+                    <img src={msg.image.startsWith('http') ? msg.image : `${API_BASE}${msg.image}`} alt="attachment"
                       className="chat-img"
-                      onClick={() => window.open(`${API_BASE}${msg.image}`, '_blank')} />
+                      onClick={() => window.open(msg.image.startsWith('http') ? msg.image : `${API_BASE}${msg.image}`, '_blank')} />
                   )}
                   {msg.time && (
                     <span className="chat-time">

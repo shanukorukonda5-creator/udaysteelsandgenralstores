@@ -128,7 +128,7 @@ export default function PaymentModal({ product, quantity, onClose }) {
         {/* Order summary */}
         <div className="order-summary">
           <img
-            src={product.images?.[0] ? `${API_BASE}${product.images[0]}` : `https://placehold.co/60x60/1a1a2e/a855f7?text=P`}
+            src={product.images?.[0] ? (product.images[0].startsWith('http') ? product.images[0] : `${API_BASE}${product.images[0]}`) : `https://placehold.co/60x60/1a1a2e/a855f7?text=P`}
             alt={product.name}
             className="summary-img"
           />
