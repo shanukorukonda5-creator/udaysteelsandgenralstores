@@ -303,3 +303,12 @@
 }
 .sub-btn:hover { background: rgba(124,58,237,0.1); color: var(--primary-light); border-color: rgba(124,58,237,0.2); }
 .sub-btn.active { background: linear-gradient(135deg, rgba(124,58,237,0.25), rgba(236,72,153,0.15)); color: white; border-color: rgba(124,58,237,0.3); }
+
+/* ── Mobile: strict 2-column grid ── */
+@media (max-width: 480px) {
+  .products-section { padding: 0.8rem 0.6rem; }
+  .products-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 0.6rem !important;
+  }
+}

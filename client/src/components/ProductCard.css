@@ -265,3 +265,23 @@
 .pc-stock.low  { background: rgba(245,158,11,0.15); color: var(--yellow); }
 .pc-stock.fast { background: rgba(249,115,22,0.15); color: var(--orange); }
 .pc-stock.good { background: rgba(16,185,129,0.15); color: var(--green); }
+
+/* ── Mobile card: compact 2-column layout ── */
+@media (max-width: 480px) {
+  .product-card { border-radius: 14px; }
+  .product-img-wrap { height: 130px; }
+  .product-info { padding: 8px; }
+  .product-name { font-size: 0.78rem; margin-bottom: 2px; }
+  .product-desc { display: none; }
+  .product-rating { margin-bottom: 4px; }
+  .review-count { display: none; }
+  .product-price { font-size: 0.9rem; }
+  .product-original-price { font-size: 0.72rem; }
+  .product-actions { padding: 6px 8px; gap: 5px; }
+  .truck-btn, .btn-buy {
+    font-size: 0.68rem;
+    padding: 7px 4px;
+    border-radius: 8px;
+  }
+  .pc-stock { font-size: 0.62rem; padding: 2px 6px; }
+}
