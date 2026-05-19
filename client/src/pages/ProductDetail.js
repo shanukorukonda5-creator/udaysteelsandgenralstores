@@ -7,6 +7,7 @@ import { useAuth } from '../context/AuthContext';
 import { toast } from 'react-toastify';
 import PaymentModal from '../components/PaymentModal';
 import BackButton from '../components/BackButton';
+import ImageViewer from '../components/ImageViewer';
 import './ProductDetail.css';
 
 const formatINR = (price) =>
@@ -38,6 +39,8 @@ export default function ProductDetail() {
   const [submitting, setSubmitting] = useState(false);
   const [showPayment, setShowPayment] = useState(false);
   const [reminded, setReminded] = useState(false);
+  const [viewerOpen, setViewerOpen] = useState(false);
+  const [viewerIndex, setViewerIndex] = useState(0);
 
   useEffect(() => {
     axios.get(`/api/products/${id}`).then(r => {
@@ -119,7 +122,17 @@ export default function ProductDetail() {
       <div className="detail-container">
         {/* Images */}
         <div className="detail-images">
-          <img src={imgSrc(activeImg)} alt={product.name} className="main-img" />
+          <div style={{ position: 'relative' }}>
+            <img src={imgSrc(activeImg)} alt={product.name} className="main-img"
+              style={{ cursor: 'zoom-in' }}
+              onClick={() => { setViewerIndex(activeImg); setViewerOpen(true); }} />
+            <div style={{
+              position: 'absolute', bottom: 10, right: 10,
+              background: 'rgba(0,0,0,0.6)', color: 'white',
+              padding: '4px 10px', borderRadius: 20, fontSize: '0.72rem',
+              backdropFilter: 'blur(4px)', pointerEvents: 'none'
+            }}>🔍 Click to zoom</div>
+          </div>
           {product.images?.length > 1 && (
             <div className="thumb-row">
               {product.images.map((_, i) => (
@@ -201,6 +214,14 @@ export default function ProductDetail() {
           product={product}
           quantity={qty}
           onClose={() => setShowPayment(false)}
+        />
+      )}
+
+      {viewerOpen && product?.images?.length > 0 && (
+        <ImageViewer
+          images={product.images.map(img => img.startsWith('http') ? img : `${API_BASE}${img}`)}
+          initialIndex={viewerIndex}
+          onClose={() => setViewerOpen(false)}
         />
       )}
 
