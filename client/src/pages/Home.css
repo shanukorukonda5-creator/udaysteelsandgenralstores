@@ -256,10 +256,13 @@
   gap: 1.5rem;
 }
 
-@media (max-width: 480px) {
-  .products-grid { grid-template-columns: repeat(2, 1fr); gap: 0.8rem; }
+@media (max-width: 600px) {
+  .products-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 0.6rem !important;
+  }
+  .products-section { padding: 0.8rem 0.6rem !important; }
   .hero { padding: 3rem 1rem 2.5rem; }
-  .products-section { padding: 1.2rem 0.8rem; }
 }
 
 .empty-state { text-align: center; padding: 5rem 2rem; grid-column: 1/-1; }
@@ -305,10 +308,3 @@
 .sub-btn.active { background: linear-gradient(135deg, rgba(124,58,237,0.25), rgba(236,72,153,0.15)); color: white; border-color: rgba(124,58,237,0.3); }
 
 /* ── Mobile: strict 2-column grid ── */
-@media (max-width: 480px) {
-  .products-section { padding: 0.8rem 0.6rem; }
-  .products-grid {
-    grid-template-columns: repeat(2, 1fr) !important;
-    gap: 0.6rem !important;
-  }
-}
