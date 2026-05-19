@@ -1,6 +1,7 @@
 const router = require('express').Router();
 const Review = require('../models/Review');
 const Product = require('../models/Product');
+const Order = require('../models/Order');
 const auth = require('../middleware/auth');
 const { uploadReview } = require('../utils/cloudinary');
 
@@ -16,6 +17,18 @@ router.get('/:productId', async (req, res) => {
 router.post('/:productId', auth, uploadReview.array('images', 3), async (req, res) => {
   try {
     const { rating, comment } = req.body;
+
+    // Check if buyer has purchased this product
+    const hasPurchased = await Order.findOne({
+      buyer: req.user._id,
+      product: req.params.productId,
+      status: { $in: ['confirmed', 'shipped', 'delivered'] }
+    });
+
+    if (!hasPurchased) {
+      return res.status(403).json({ message: 'You can only review products you have purchased.' });
+    }
+
     const existing = await Review.findOne({ product: req.params.productId, user: req.user._id });
     if (existing) return res.status(400).json({ message: 'You already reviewed this product' });
 

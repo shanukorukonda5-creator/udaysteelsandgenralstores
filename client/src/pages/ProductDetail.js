@@ -41,16 +41,26 @@ export default function ProductDetail() {
   const [reminded, setReminded] = useState(false);
   const [viewerOpen, setViewerOpen] = useState(false);
   const [viewerIndex, setViewerIndex] = useState(0);
+  const [hasPurchased, setHasPurchased] = useState(false);
 
   useEffect(() => {
     axios.get(`/api/products/${id}`).then(r => {
       setProduct(r.data);
-      // Check if current user already set a reminder
       if (user && r.data.stockReminders?.includes(user._id)) {
         setReminded(true);
       }
     }).catch(() => navigate('/'));
     axios.get(`/api/reviews/${id}`).then(r => setReviews(r.data));
+    // Check if buyer has purchased this product
+    if (user && user.role === 'buyer') {
+      axios.get('/api/orders/mine').then(r => {
+        const bought = r.data.some(o =>
+          (o.product?._id === id || o.product === id) &&
+          ['confirmed', 'shipped', 'delivered'].includes(o.status)
+        );
+        setHasPurchased(bought);
+      }).catch(() => {});
+    }
   }, [id, navigate, user]);
 
   const handleAddToCart = async (e) => {
@@ -230,43 +240,57 @@ export default function ProductDetail() {
         <h2>Customer Reviews</h2>
 
         {user && user.role !== 'seller' && (
-          <form className="review-form" onSubmit={handleReview}>
-            <h3>Write a Review</h3>
-            <div style={{ marginBottom: '0.5rem' }}>
-              <Stars rating={review.rating} interactive onRate={r => setReview({ ...review, rating: r })} />
-            </div>
-            <textarea
-              placeholder="Share your experience..."
-              value={review.comment}
-              onChange={e => setReview({ ...review, comment: e.target.value })}
-              required
-              rows={3}
-            />
-            {/* Photo upload */}
-            <div style={{ marginTop: '0.8rem' }}>
-              <label style={{ fontSize: '0.82rem', color: 'var(--text3)', fontWeight: 600, display: 'block', marginBottom: 6 }}>
-                📷 Add Photos (optional, up to 3)
-              </label>
-              <input type="file" accept="image/*" multiple
-                onChange={e => setReviewImages(Array.from(e.target.files).slice(0, 3))}
-                style={{ width: '100%', padding: '8px', border: '1px dashed rgba(124,58,237,0.3)', borderRadius: '10px', background: 'var(--bg2)', color: 'var(--text2)', cursor: 'pointer', fontSize: '0.82rem' }}
+          hasPurchased ? (
+            <form className="review-form" onSubmit={handleReview}>
+              <h3>✍️ Write a Review</h3>
+              <div style={{ marginBottom: '0.5rem' }}>
+                <Stars rating={review.rating} interactive onRate={r => setReview({ ...review, rating: r })} />
+              </div>
+              <textarea
+                placeholder="Share your experience..."
+                value={review.comment}
+                onChange={e => setReview({ ...review, comment: e.target.value })}
+                required
+                rows={3}
               />
-              {reviewImages.length > 0 && (
-                <div style={{ display: 'flex', gap: 8, marginTop: 8, flexWrap: 'wrap' }}>
-                  {reviewImages.map((img, i) => (
-                    <div key={i} style={{ position: 'relative' }}>
-                      <img src={URL.createObjectURL(img)} alt="" style={{ width: 70, height: 70, objectFit: 'cover', borderRadius: 10, border: '2px solid var(--primary)' }} />
-                      <button type="button" onClick={() => setReviewImages(reviewImages.filter((_, idx) => idx !== i))}
-                        style={{ position: 'absolute', top: -6, right: -6, background: 'var(--red)', color: 'white', border: 'none', borderRadius: '50%', width: 20, height: 20, cursor: 'pointer', fontSize: '0.7rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✕</button>
-                    </div>
-                  ))}
-                </div>
-              )}
+              <div style={{ marginTop: '0.8rem' }}>
+                <label style={{ fontSize: '0.82rem', color: 'var(--text3)', fontWeight: 600, display: 'block', marginBottom: 6 }}>
+                  📷 Add Photos (optional, up to 3)
+                </label>
+                <input type="file" accept="image/*" multiple
+                  onChange={e => setReviewImages(Array.from(e.target.files).slice(0, 3))}
+                  style={{ width: '100%', padding: '8px', border: '1px dashed rgba(124,58,237,0.3)', borderRadius: '10px', background: 'var(--bg2)', color: 'var(--text2)', cursor: 'pointer', fontSize: '0.82rem' }}
+                />
+                {reviewImages.length > 0 && (
+                  <div style={{ display: 'flex', gap: 8, marginTop: 8, flexWrap: 'wrap' }}>
+                    {reviewImages.map((img, i) => (
+                      <div key={i} style={{ position: 'relative' }}>
+                        <img src={URL.createObjectURL(img)} alt="" style={{ width: 70, height: 70, objectFit: 'cover', borderRadius: 10, border: '2px solid var(--primary)' }} />
+                        <button type="button" onClick={() => setReviewImages(reviewImages.filter((_, idx) => idx !== i))}
+                          style={{ position: 'absolute', top: -6, right: -6, background: 'var(--red)', color: 'white', border: 'none', borderRadius: '50%', width: 20, height: 20, cursor: 'pointer', fontSize: '0.7rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✕</button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+              <button type="submit" disabled={submitting}>
+                {submitting ? 'Submitting...' : 'Submit Review'}
+              </button>
+            </form>
+          ) : (
+            <div style={{
+              background: 'rgba(124,58,237,0.08)',
+              border: '1px solid rgba(124,58,237,0.2)',
+              borderRadius: 14,
+              padding: '1.2rem',
+              marginBottom: '1.5rem',
+              textAlign: 'center',
+              color: 'var(--text2)',
+              fontSize: '0.9rem'
+            }}>
+              🛒 You can only review products you have purchased and received.
             </div>
-            <button type="submit" disabled={submitting}>
-              {submitting ? 'Submitting...' : 'Submit Review'}
-            </button>
-          </form>
+          )
         )}
 
         <div className="reviews-list">
