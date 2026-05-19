@@ -18,6 +18,7 @@ import Notifications from './pages/Notifications';
 import Profile from './pages/Profile';
 import SellerChat from './pages/SellerChat';
 import ChatWidget from './components/ChatWidget';
+import OfferPopup from './components/OfferPopup';
 
 const ProtectedRoute = ({ children, role }) => {
   const { user, loading } = useAuth();
@@ -47,6 +48,7 @@ function AppRoutes() {
       </Routes>
       <ToastContainer position="bottom-right" autoClose={3000} />
       <ChatWidget />
+      <OfferPopup />
     </>
   );
 }

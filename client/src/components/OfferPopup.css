@@ -1,0 +1,198 @@
+.op-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.75);
+  backdrop-filter: blur(8px);
+  z-index: 99998;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  animation: fadeIn 0.3s ease;
+}
+
+.op-modal {
+  background: var(--card);
+  border: 1px solid rgba(124,58,237,0.3);
+  border-radius: 24px;
+  width: 100%;
+  max-width: 420px;
+  box-shadow: 0 30px 80px rgba(0,0,0,0.5), 0 0 60px rgba(124,58,237,0.15);
+  animation: popIn 0.4s cubic-bezier(0.34,1.56,0.64,1);
+  overflow: hidden;
+}
+
+.op-header {
+  background: linear-gradient(135deg, #7c3aed, #ec4899, #f97316);
+  background-size: 200% 200%;
+  animation: gradientShift 4s ease infinite;
+  padding: 14px 18px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.op-fire { font-size: 1.5rem; animation: float 2s ease-in-out infinite; }
+.op-title {
+  flex: 1;
+  color: white;
+  font-size: 1.1rem;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+}
+.op-close {
+  background: rgba(255,255,255,0.2);
+  border: none;
+  border-radius: 50%;
+  width: 28px; height: 28px;
+  color: white;
+  cursor: pointer;
+  font-size: 0.85rem;
+  display: flex; align-items: center; justify-content: center;
+  transition: background 0.2s;
+}
+.op-close:hover { background: rgba(255,255,255,0.35); }
+
+.op-dots {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 0 0;
+}
+.op-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: rgba(124,58,237,0.3);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.op-dot.active { background: var(--primary); transform: scale(1.3); }
+
+.op-img-wrap {
+  position: relative;
+  height: 200px;
+  overflow: hidden;
+  background: linear-gradient(135deg, #0f0f1a, #1a1a2e);
+}
+.op-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.4s;
+}
+.op-modal:hover .op-img { transform: scale(1.04); }
+
+.op-discount-badge {
+  position: absolute;
+  top: 12px; right: 12px;
+  background: linear-gradient(135deg, #ef4444, #f97316);
+  color: white;
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: 0.82rem;
+  font-weight: 800;
+  box-shadow: 0 4px 12px rgba(239,68,68,0.4);
+  animation: pulse 2s infinite;
+}
+
+.op-info { padding: 16px 18px 8px; }
+
+.op-name {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: var(--text);
+  margin-bottom: 6px;
+}
+.op-desc {
+  font-size: 0.8rem;
+  color: var(--text3);
+  line-height: 1.5;
+  margin-bottom: 10px;
+}
+.op-offer-tag {
+  display: inline-block;
+  background: linear-gradient(135deg, rgba(236,72,153,0.15), rgba(249,115,22,0.15));
+  border: 1px solid rgba(236,72,153,0.3);
+  color: var(--pink);
+  padding: 5px 14px;
+  border-radius: 20px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  margin-bottom: 10px;
+  animation: pulse 2s infinite;
+}
+.op-price-row { display: flex; align-items: center; gap: 10px; }
+.op-price {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: var(--green);
+  text-shadow: 0 0 12px rgba(16,185,129,0.3);
+}
+.op-original {
+  font-size: 0.9rem;
+  color: var(--text3);
+  text-decoration: line-through;
+}
+
+.op-actions {
+  display: flex;
+  gap: 10px;
+  padding: 12px 18px 16px;
+}
+.op-btn-ok {
+  flex: 1;
+  padding: 12px;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  color: var(--text2);
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: 'Poppins', sans-serif;
+  transition: all 0.2s;
+}
+.op-btn-ok:hover { background: var(--bg3); color: var(--text); }
+
+.op-btn-view {
+  flex: 1.5;
+  padding: 12px;
+  background: linear-gradient(135deg, var(--primary), var(--pink));
+  border: none;
+  border-radius: 12px;
+  color: white;
+  font-size: 0.88rem;
+  font-weight: 800;
+  cursor: pointer;
+  font-family: 'Poppins', sans-serif;
+  transition: all 0.25s;
+  box-shadow: 0 0 20px rgba(124,58,237,0.3);
+}
+.op-btn-view:hover { transform: translateY(-2px); box-shadow: 0 0 30px rgba(124,58,237,0.5); }
+
+.op-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 18px 14px;
+  font-size: 0.78rem;
+  color: var(--text3);
+}
+.op-nav button {
+  background: none;
+  border: none;
+  color: var(--primary-light);
+  cursor: pointer;
+  font-size: 0.82rem;
+  font-weight: 600;
+  font-family: 'Poppins', sans-serif;
+  padding: 4px 8px;
+  border-radius: 8px;
+  transition: background 0.2s;
+}
+.op-nav button:hover { background: rgba(124,58,237,0.1); }
+
+@media (max-width: 480px) {
+  .op-modal { border-radius: 18px; }
+  .op-img-wrap { height: 160px; }
+  .op-name { font-size: 0.95rem; }
+}
