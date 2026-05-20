@@ -6,6 +6,7 @@ const productSchema = new mongoose.Schema({
   description: { type: String, required: true },
   price: { type: Number, required: true },
   originalPrice: { type: Number },
+  priceBeforeOffer: { type: Number }, // stores price before offer was applied
   images: [String],
   category: { type: String, default: 'General' },
   stock: { type: Number, default: 10 },

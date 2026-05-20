@@ -112,20 +112,18 @@ router.post('/:id/offer', auth, async (req, res) => {
     const product = await Product.findById(req.params.id);
     if (!product) return res.status(404).json({ message: 'Product not found' });
 
-    const offerText = req.body.offer; // e.g. "10% off on today"
+    const offerText = req.body.offer;
 
     // Parse percentage from offer text e.g. "10% off" → 10
     const match = offerText.match(/(\d+(\.\d+)?)\s*%/);
+
     let newPrice = product.price;
-    let originalPrice = product.originalPrice || product.price;
 
     if (match) {
       const percent = parseFloat(match[1]);
-      // Save original price before discount (use existing originalPrice if already set)
-      if (!product.originalPrice) {
-        originalPrice = product.price;
-      }
-      newPrice = Math.round(originalPrice * (1 - percent / 100));
+      // Discount on actual price, save it to restore later
+      // priceBeforeOffer saves the current price so we can restore it
+      newPrice = Math.round(product.price * (1 - percent / 100));
     }
 
     const updated = await Product.findByIdAndUpdate(
@@ -134,7 +132,7 @@ router.post('/:id/offer', auth, async (req, res) => {
         offer: offerText,
         offerActive: true,
         price: newPrice,
-        originalPrice: originalPrice
+        priceBeforeOffer: product.price
       },
       { new: true }
     );
@@ -159,11 +157,12 @@ router.put('/:id/remove-offer', auth, async (req, res) => {
     const product = await Product.findById(req.params.id);
     if (!product) return res.status(404).json({ message: 'Not found' });
 
-    // Restore original price
-    const restorePrice = product.originalPrice || product.price;
+    // Restore price to what it was before offer (priceBeforeOffer)
+    // MRP (originalPrice) is never touched
+    const restorePrice = product.priceBeforeOffer || product.price;
     const updated = await Product.findByIdAndUpdate(
       req.params.id,
-      { offer: '', offerActive: false, price: restorePrice, originalPrice: null },
+      { offer: '', offerActive: false, price: restorePrice, priceBeforeOffer: null },
       { new: true }
     );
     res.json({ message: 'Offer removed and price restored', product: updated });
