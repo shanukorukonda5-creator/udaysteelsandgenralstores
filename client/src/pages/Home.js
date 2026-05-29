@@ -14,6 +14,7 @@ const CATEGORIES = [
   { name: 'Fans',              icon: '✇', sub: ['Ceiling Fans', 'Stand Fans', 'Table Fans'] },
   { name: 'USA Products',      icon: '✈️', sub: [] },
   { name: 'Dosa Tawas',        icon: '🍳', sub: [] },
+  { name: 'Induction Stoves',  icon: '⚡', sub: [] },
   { name: 'Others',            icon: '🍽️', sub: [] },
 ];
 

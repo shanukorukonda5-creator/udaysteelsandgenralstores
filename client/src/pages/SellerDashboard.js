@@ -7,7 +7,7 @@ import './SellerDashboard.css';
 const formatINR = (price) =>
   new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(price);
 
-const CATEGORIES = ['Mixer Grinders', 'Rice Cookers', 'Iron Boxes', 'Grinders', 'Pressure Cookers', 'Gas Stoves', '2 Burners', '4 Burners', 'Fans', 'Ceiling Fans', 'Stand Fans', 'Table Fans', 'USA Products', 'Dosa Tawas', 'Others'];
+const CATEGORIES = ['Mixer Grinders', 'Rice Cookers', 'Iron Boxes', 'Grinders', 'Pressure Cookers', 'Gas Stoves', '2 Burners', '4 Burners', 'Fans', 'Ceiling Fans', 'Stand Fans', 'Table Fans', 'USA Products', 'Dosa Tawas', 'Induction Stoves', 'Others'];
 
 const emptyForm = { name: '', description: '', price: '', originalPrice: '', category: 'Mixer Grinders', stock: 10 };
 
