@@ -106,7 +106,46 @@ export default function Home() {
             <div className="hero-stat"><div className="hero-stat-num">1000+</div><div className="hero-stat-label">Happy Customers</div></div>
             <div className="hero-stat"><div className="hero-stat-num">100%</div><div className="hero-stat-label">Genuine Quality</div></div>
           </div>
-   
+          <div className="about-store">
+  <h2>About Uday Steels & General Stores</h2>
+  <p>
+    Uday Steels & General Stores is your trusted destination for
+    Mixer Grinders, Rice Cookers, Gas Stoves, Induction Stoves,
+    Pressure Cookers, Fans, RO Water Purifiers and Home Appliances.
+  </p>
+</div>
+
+<div className="store-features">
+  <div className="feature-card">
+    <span>🌪️</span>
+    <h3>Mixer Grinders</h3>
+    <p>Premium quality mixer grinders.</p>
+  </div>
+
+  <div className="feature-card">
+    <span>🍚</span>
+    <h3>Rice Cookers</h3>
+    <p>Easy and efficient cooking solutions.</p>
+  </div>
+
+  <div className="feature-card">
+    <span>🔥</span>
+    <h3>Gas Stoves</h3>
+    <p>Reliable and durable gas stoves.</p>
+  </div>
+
+  <div className="feature-card">
+    <span>⚡</span>
+    <h3>Induction Stoves</h3>
+    <p>Modern energy-efficient cooking appliances.</p>
+  </div>
+</div>
+
+<div className="contact-store">
+  <h2>Contact Uday Steels & General Stores</h2>
+  <p>📍 Infront of sivalayam beside SBI atm,Main Road Tiruvuru</p>
+  <p>📞 9951185422</p>
+</div>
         </div>
       </div>
 
